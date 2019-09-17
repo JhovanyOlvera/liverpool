@@ -12,12 +12,15 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.myliverpool.adapters.HistorySearchAdapter;
 import com.android.myliverpool.adapters.ProductAdapter;
 import com.android.myliverpool.models.Product;
+import com.android.myliverpool.models.tables.HistorySearch;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -42,9 +45,12 @@ public class MainActivity extends AppCompatActivity implements IMainCallbacks {
     ProgressBar pbLoader;
     @BindView(R.id.tv_noFountResult)
     TextView tvNoFountResult;
+    @BindView(R.id.rv_historySearch)
+    RecyclerView rvHistorySearch;
 
     private MainViewModel vm;
     private ProductAdapter adapter;
+    private HistorySearchAdapter historySearchAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,15 +68,23 @@ public class MainActivity extends AppCompatActivity implements IMainCallbacks {
     }
 
     private void initButtonSearch() {
-        btnSearch.setOnClickListener(v -> {
-            vm.search(etSearch.getText().toString());
+        etSearch.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                vm.getHistorySearch();
+            }
         });
+
+        btnSearch.setOnClickListener(v -> vm.search(etSearch.getText().toString()));
     }
 
     private void initRecyclerView() {
         rvProducts.setHasFixedSize(true);
         adapter = new ProductAdapter(this);
         rvProducts.setAdapter(adapter);
+
+        rvHistorySearch.setHasFixedSize(true);
+        historySearchAdapter = new HistorySearchAdapter(this, vm.iMainCallbacks);
+        rvHistorySearch.setAdapter(historySearchAdapter);
     }
 
     @Override
@@ -95,5 +109,18 @@ public class MainActivity extends AppCompatActivity implements IMainCallbacks {
         rvProducts.setVisibility(View.GONE);
         tvNoFountResult.setVisibility(View.GONE);
         pbLoader.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void setSearch(String parameter) {
+        vm.search(parameter);
+    }
+
+    @Override
+    public void setHistorySearch(List<HistorySearch> historySearchList) {
+        runOnUiThread(() -> {
+            rvHistorySearch.setVisibility(View.VISIBLE);
+            historySearchAdapter.setHistorySearchs(historySearchList);
+        });
     }
 }
