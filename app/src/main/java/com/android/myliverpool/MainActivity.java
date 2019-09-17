@@ -113,6 +113,7 @@ public class MainActivity extends AppCompatActivity implements IMainCallbacks {
 
     @Override
     public void setSearch(String parameter) {
+        etSearch.setText(parameter);
         vm.search(parameter);
     }
 
