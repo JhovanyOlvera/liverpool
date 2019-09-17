@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">My Liverpool</string>
+    <string name="app_name">Mi Liverpool</string>
+    <string name="hint_search">Mi busqueda</string>
+    <string name="search">Buscar</string>
 </resources>
