@@ -7,13 +7,13 @@ import java.util.ArrayList;
 public class Results {
 
     @Expose
-    private ArrayList<Record> records;
+    private ArrayList<Product> records;
 
-    public ArrayList<Record> getRecords() {
+    public ArrayList<Product> getRecords() {
         return records;
     }
 
-    public void setRecords(ArrayList<Record> records) {
+    public void setRecords(ArrayList<Product> records) {
         this.records = records;
     }
 }

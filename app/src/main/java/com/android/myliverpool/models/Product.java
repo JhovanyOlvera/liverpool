@@ -2,7 +2,7 @@ package com.android.myliverpool.models;
 
 import com.google.gson.annotations.Expose;
 
-public class Record {
+public class Product {
 
     @Expose
     private String productDisplayName;

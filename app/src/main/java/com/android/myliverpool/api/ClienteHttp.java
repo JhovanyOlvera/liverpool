@@ -6,8 +6,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ClienteHttp {
 
-    public static final String BASE_URL = "https://shoppapp.liverpool.com.mx/appclienteservices/services/v3/plp";
-    public static final String BAKING = "baking.json";
+    public static final String BASE_URL = "https://shoppapp.liverpool.com.mx/appclienteservices/services/v3/";
     private static Retrofit retrofit;
     private static ISearch iSearch;
 
