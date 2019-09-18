@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface IMainCallbacks {
 
-    void setProduct(ArrayList<Product> products);
+    void setProduct(ArrayList<Product> products, boolean isNewSearch);
 
     void noResultFound();
 

@@ -7,9 +7,11 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.myliverpool.adapters.HistorySearchAdapter;
@@ -25,7 +27,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity implements IMainCallbacks {
+public class MainActivity extends AppCompatActivity implements IMainCallbacks, IMainAdapterCallbacks {
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -51,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements IMainCallbacks {
     private MainViewModel vm;
     private ProductAdapter adapter;
     private HistorySearchAdapter historySearchAdapter;
+    private IMainAdapterCallbacks iMainAdapterCallbacks;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements IMainCallbacks {
         ButterKnife.bind(this);
         vm = ViewModelProviders.of(this).get(MainViewModel.class);
         vm.iMainCallbacks = this;
+        iMainAdapterCallbacks = this;
         vm.ctx = this;
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle(getString(R.string.app_name));
@@ -74,13 +78,44 @@ public class MainActivity extends AppCompatActivity implements IMainCallbacks {
             }
         });
 
-        btnSearch.setOnClickListener(v -> vm.search(etSearch.getText().toString()));
+        btnSearch.setOnClickListener(v -> {
+            vm.pager = 1;
+            vm.search(etSearch.getText().toString());
+        });
     }
 
     private void initRecyclerView() {
+        LinearLayoutManager mLayoutManager;
+        mLayoutManager = new LinearLayoutManager(this);
+        rvProducts.setLayoutManager(mLayoutManager);
         rvProducts.setHasFixedSize(true);
-        adapter = new ProductAdapter(this);
+        adapter = new ProductAdapter(this,iMainAdapterCallbacks );
         rvProducts.setAdapter(adapter);
+
+        final int[] pastVisiblesItems = {0};
+        final int[] visibleItemCount = {0};
+        final int[] totalItemCount = {0};
+
+        rvProducts.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (dy > 0) {
+                    visibleItemCount[0] = mLayoutManager.getChildCount();
+                    totalItemCount[0] = mLayoutManager.getItemCount();
+                    pastVisiblesItems[0] = mLayoutManager.findFirstVisibleItemPosition();
+
+                    if (!vm.loading) {
+                        if (visibleItemCount[0] + pastVisiblesItems[0] >= totalItemCount[0]) {
+                            vm.loading = true;
+                            vm.search(etSearch.getText().toString());
+                            vm.pager = vm.pager + 1;
+                        }
+                    }
+                }
+            }
+        });
+
 
         rvHistorySearch.setHasFixedSize(true);
         historySearchAdapter = new HistorySearchAdapter(this, vm.iMainCallbacks);
@@ -88,13 +123,11 @@ public class MainActivity extends AppCompatActivity implements IMainCallbacks {
     }
 
     @Override
-    public void setProduct(ArrayList<Product> products) {
-        tvResult.setVisibility(View.VISIBLE);
-        tvResult.setText(getString(R.string.number_result, String.valueOf(products.size())));
+    public void setProduct(ArrayList<Product> products, boolean isNewSearch) {
         rvProducts.setVisibility(View.VISIBLE);
         tvNoFountResult.setVisibility(View.GONE);
         pbLoader.setVisibility(View.GONE);
-        adapter.setProduct(products);
+        adapter.setProduct(products,isNewSearch);
     }
 
     @Override
@@ -106,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements IMainCallbacks {
 
     @Override
     public void initSearch() {
-        rvProducts.setVisibility(View.GONE);
+        rvProducts.setVisibility(View.VISIBLE);
         tvNoFountResult.setVisibility(View.GONE);
         pbLoader.setVisibility(View.VISIBLE);
     }
@@ -114,6 +147,7 @@ public class MainActivity extends AppCompatActivity implements IMainCallbacks {
     @Override
     public void setSearch(String parameter) {
         etSearch.setText(parameter);
+        vm.pager = 1;
         vm.search(parameter);
     }
 
@@ -123,5 +157,11 @@ public class MainActivity extends AppCompatActivity implements IMainCallbacks {
             rvHistorySearch.setVisibility(View.VISIBLE);
             historySearchAdapter.setHistorySearchs(historySearchList);
         });
+    }
+
+    @Override
+    public void updateNumberResult(String number) {
+        tvResult.setVisibility(View.VISIBLE);
+        tvResult.setText(getString(R.string.number_result, number));
     }
 }

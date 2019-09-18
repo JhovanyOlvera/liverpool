@@ -112,6 +112,7 @@
     <ProgressBar
         android:id="@+id/pb_loader"
         style="?android:attr/progressBarStyle"
+        android:progressBackgroundTint="@color/colorPrimaryDark"
         android:layout_width="100dp"
         android:layout_height="0dp"
         android:visibility="gone"

@@ -11,6 +11,8 @@ public interface ISearch {
     //TODO POR LA ESTRUCTURA DE DATOS DEL SERVICIO  SOLO SE CONSULTA POR  force-plp & search-string POR FUNCIONALIDAD
     @GET("plp/")
     Call<SearchResult> getSearch(@Query("force-plp") Boolean force,
-                                 @Query("search-string") String search);
+                                 @Query("search-string") String search,
+                                 @Query("page-number") String pageNumber,
+                                 @Query("number-of-items-per-page") String numberGetItem);
 
 }

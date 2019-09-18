@@ -25,16 +25,24 @@ public class MainViewModel extends ViewModel {
     protected IMainCallbacks iMainCallbacks;
     protected Context ctx;
 
+    protected Boolean loading = false;
+    protected Integer pager = 1;
+
     protected void search(String parameter) {
         if (!TextUtils.isEmpty(parameter)) {
             getHistorySearch();
             iMainCallbacks.initSearch();
-            iSearch.getSearch(true, parameter.toLowerCase()).enqueue(new Callback<SearchResult>() {
+            iSearch.getSearch(true, parameter.toLowerCase(), pager.toString(), "10").enqueue(new Callback<SearchResult>() {
                 @Override
                 public void onResponse(Call<SearchResult> call, Response<SearchResult> response) {
                     if (response.body().getPlpResults() != null && !response.body().getPlpResults().getRecords().isEmpty()) {
                         saveHistorySearch(parameter.toLowerCase());
-                        iMainCallbacks.setProduct(response.body().getPlpResults().getRecords());
+                        boolean isNewSearch = true;
+                        if(pager>1){
+                            isNewSearch =false;
+                        }
+                        iMainCallbacks.setProduct(response.body().getPlpResults().getRecords(),isNewSearch);
+                        loading = false;
                     } else {
                         iMainCallbacks.noResultFound();
                     }

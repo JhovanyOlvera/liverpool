@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.myliverpool.IMainAdapterCallbacks;
 import com.android.myliverpool.R;
 import com.android.myliverpool.models.Product;
 import com.bumptech.glide.Glide;
@@ -24,14 +25,19 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     private List<Product> product = new ArrayList<>();
     private Context ctx;
+    private IMainAdapterCallbacks iMainAdapterCallbacks;
 
-    public ProductAdapter(Context ctx) {
+    public ProductAdapter(Context ctx, IMainAdapterCallbacks iMainAdapterCallbacks) {
         this.ctx = ctx;
+        this.iMainAdapterCallbacks = iMainAdapterCallbacks;
     }
 
-    public void setProduct(List<Product> product) {
-        this.product.clear();
+    public void setProduct(List<Product> product, boolean isNewSearch) {
+        if (isNewSearch) {
+            this.product.clear();
+        }
         this.product.addAll(product);
+        iMainAdapterCallbacks.updateNumberResult((String.valueOf(this.product.size())));
         notifyDataSetChanged();
     }
 
